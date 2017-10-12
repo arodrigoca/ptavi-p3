@@ -62,9 +62,12 @@ class SmallSMILHandler(ContentHandler):
         	findAttrs(textDict, textList, attrs)
         	tags.append(textDict)
 
-    def get_tags():
+    def get_tags(self, file):
 
-    	print(tags)
+    	parser = make_parser()
+    	cHandler = SmallSMILHandler()
+    	parser.setContentHandler(cHandler)
+    	parser.parse(open(file))
     	return tags
 
 if __name__ == "__main__":
@@ -75,4 +78,3 @@ if __name__ == "__main__":
     cHandler = SmallSMILHandler()
     parser.setContentHandler(cHandler)
     parser.parse(open('karaoke.smil'))
-    print(tags)
