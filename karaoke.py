@@ -52,19 +52,20 @@ def isHTTP(source):
 
     return result
 
+
 def createFileName(source):
 
     workingDirectory = os.getcwd()
     nameStart = source.rfind("/") + 1
     newName = source[nameStart:]
-    print(newName)
+    return newName
+
 
 def downloadSource(source):
 
-
     try:
-        urlretrieve(source)
-        createFileName(source)        
+        newFile = createFileName(source)
+        urlretrieve(source, newFile)
 
     except ValueError:
         pass
@@ -75,8 +76,6 @@ def getRemoteSources(tags):
     for tag in tags:
         try:
             source = tag['src']
-            #print(source)
-            #print(isHTTP(source))
             if isHTTP:
                 downloadSource(source)
 
@@ -93,7 +92,6 @@ if __name__ == "__main__":
         printTags(tags)
         toJSON(tags, file)
         getRemoteSources(tags)
-        print(os.getcwd())
 
     except(FileNotFoundError, IndexError):
         print("Usage: python3 karaoke.py file.smil")
