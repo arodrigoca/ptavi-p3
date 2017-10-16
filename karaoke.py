@@ -17,7 +17,8 @@ def makeTagLines(tags):
         tagLine = tag['tag']
         for attribute in tag:
             if attribute != 'tag' and tag[attribute] != '':
-                tagLine = tagLine + '\t' + attribute + '=' + tag[attribute]
+                tagLine = tagLine + '\t' + attribute + '=' + '"' + \
+                    tag[attribute] + '"'
         tagLines.append(tagLine)
 
     return tagLines
@@ -29,21 +30,21 @@ def printTags(tags):
         print(element)
 
 
-def splitFileName():
+def splitFileName(file):
 
-    file = sys.argv[1].split(".")
-    file = file[0]
+    newFile = file.split(".")
+    newFile = newFile[0]
 
-    return file
+    return newFile
 
 
 def toJSON(tags, file):
 
-    fileName = splitFileName()
+    fileName = splitFileName(file)
     fileName = fileName + '.json'
 
     with open(fileName, "w") as f:
-        json.dump(tags, f)
+        json.dump(tags, f, sort_keys=True, indent=4)
 
 
 def isHTTP(source):
@@ -61,10 +62,11 @@ def createFileName(source):
     return newName
 
 
-def downloadSource(source):
+def downloadSource(source, tag, tags):
 
     try:
         newFile = createFileName(source)
+        tag['src'] = newFile
         urlretrieve(source, newFile)
 
     except ValueError:
@@ -77,21 +79,48 @@ def getRemoteSources(tags):
         try:
             source = tag['src']
             if isHTTP:
-                downloadSource(source)
+                downloadSource(source, tag, tags)
 
         except KeyError:
             pass
+
+
+class KaraokeLocal(SmallSMILHandler):
+
+    def __init__(self, file):
+
+        self.tags = self.get_tags(file)
+        self.smilFile = file
+
+    def __str__(self):
+
+        printTags(self.tags)
+        print()
+
+    def to_json(self, smilName, jsonName=None):
+
+        if jsonName is None:
+            toJSON(self.tags, self.smilFile)
+
+        else:
+            with open(jsonName, "w") as f:
+                json.dump(self.tags, f, sort_keys=True, indent=4)
+
+    def do_local(self):
+
+        getRemoteSources(self.tags)
 
 
 if __name__ == "__main__":
 
     try:
         file = sys.argv[1]
-        handler = SmallSMILHandler()
-        tags = handler.get_tags(file)
-        printTags(tags)
-        toJSON(tags, file)
-        getRemoteSources(tags)
+        kar = KaraokeLocal(file)
+        kar.__str__()
+        kar.to_json(file)
+        kar.do_local()
+        kar.to_json(file, "local.json")
+        kar.__str__()
 
     except(FileNotFoundError, IndexError):
         print("Usage: python3 karaoke.py file.smil")

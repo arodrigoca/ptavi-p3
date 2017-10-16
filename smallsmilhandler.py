@@ -5,7 +5,7 @@ from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 
 tags = []
-##this are the lists of possible attributes for each tag
+# this are the lists of possible attributes for each tag
 regList = ["id", "top", "left", "bottom", "right"]
 rootList = ["width", "height", "background-color"]
 imgList = ["src", "region", "begin", "dur"]
@@ -73,7 +73,7 @@ class SmallSMILHandler(ContentHandler):
 
 if __name__ == "__main__":
     """
-    Programa principal
+    Test block
     """
     parser = make_parser()
     cHandler = SmallSMILHandler()
